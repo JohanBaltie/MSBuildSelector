@@ -5,7 +5,7 @@ MSBuild Selector is a build system for msbuild user allowing one to select betwe
 
 Every build option is available in all the Platform/Configuration pairs.
 
-To activate it, you have to select the MSBuildSelector build system and also configure your project to have:
+To activate it, you have to select the MSBuildSelector build system, and press the build shortcut (CTRL-B or F7). You also have to configure your project to have:
 
 "msbuild_selector":
 {
@@ -37,4 +37,4 @@ Additionally you can override the plugin configuration that contains:
 * "platforms": the list of platform to build for
 * "configurations": the list of available configuration
 	"file_regex": the error line match (see build system documentation)
-}
+
