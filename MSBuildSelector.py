@@ -5,29 +5,50 @@ import os
 import re
 import glob
 
+class BuildInfo:
+  """Contain all the info needed to create a build for the 
+  configuration/platforms pairs"""
+
+  def __init__(self, name, file_name, directory, params = []):
+    self.name = name
+    self.file_name = file_name
+    self.directory = directory
+    self.params = params
+
+
 class MsbuildSelector(sublime_plugin.WindowCommand):
+  """This command is called by the build system MSBuildSelector
+  It will create a quick panel containing all the possible builds :
+  * The projects (a.k.a solution in Visual Studio) in all the 
+    platform/configuration pairs
+  * The sub projects (a.k.a. projects in Visual Studio) the 
+    current file belongs to in all the platform/configuration 
+    pairs
+  * The current file in all the projects it does belong to an 
+    all the platform/configuration pairs"""
+
+  msbuild_parameter = "/p:Platform={Platform};Configuration={Configuration}"
+  file_build_label = "{Name}: {Platform}/{Configuration}"
 
   # Create a build configuration for every pair of Configuration/Platform for
   # this file and this parameters
   def create_build_configuration(self, build, panel, environment):
-    build_name = build.get("name")
-    build_file_name = build.get("file_name")
-    build_directory = build.get("directory")
-    build_params = build.get("additional_parameters")
-
     for configuration in self.configurations:
       for platform in self.platforms:
-        parameter = "/p:Platform={Platform};Configuration={Configuration}".format(Platform = platform, Configuration = configuration)
-        full_name = "{Name}: {Platform}/{Configuration}".format(Name = build_name, Platform =  platform, Configuration = configuration)
+        parameter = self.msbuild_parameter.format(Platform = platform,
+                                                  Configuration = configuration)
+        full_name = self.file_build_label.format(Name = build.name, 
+                                                 Platform =  platform,
+                                                 Configuration = configuration)
         
-        cmd = [ self.msbuild_cmd, build_file_name, parameter ]
+        cmd = [ self.msbuild_cmd, build.file_name, parameter ]
 
-        if build_params != None:
-          cmd.extend(build_params)
+        if len(build.params) > 0:
+          cmd.extend(build.params)
         
         build_system = { 
           "cmd": cmd,
-          "working_dir": build_directory
+          "working_dir": build.directory
          }
 
         if environment != None:
@@ -42,9 +63,9 @@ class MsbuildSelector(sublime_plugin.WindowCommand):
   def find_projects_for_file(self, name, patterns):
     basename = os.path.basename(name)
     expression = "(?:Compile|Include)\s*=\s*\"((?:.*/|.*\\\\)?" + re.escape(basename) + ")\""
-    regexp = re.compile(expression, re.IGNORECASE) 
-
+    regexp = re.compile(expression, re.IGNORECASE)
     projects = []
+
     for pattern in patterns:
       for file in glob.iglob(pattern):
         for line in open(file, 'r'):
@@ -58,6 +79,7 @@ class MsbuildSelector(sublime_plugin.WindowCommand):
     return projects
 
 
+  # Command run call by the build system
   def run(self):
     # Set the directory to the one of the project
     project_file_name = self.window.project_file_name()
@@ -107,27 +129,30 @@ class MsbuildSelector(sublime_plugin.WindowCommand):
         # Build only this file        
         # WARNING: the file path in selected path should be exactly the same as
         # the one in the msbuildfile, so it does not work with variables.
-        self.create_build_configuration({
-          "name": file_name_without_path + " (" + project_name + ")",
-          "directory": project_directory, 
-          "file_name": project_file_name,
-          "additional_parameters": [ 
+        name_for_file = file_name_without_path + " (" + project_name + ")"
+        params = [ 
             "/target:ClCompile",
-            "/property:SelectedFiles=" + file_path_in_project ] 
-          }, panel_builds, environment)
+            "/property:SelectedFiles=" + file_path_in_project ]
+        build_info = BuildInfo(name_for_file, 
+                               project_directory, 
+                               project_file_name, 
+                               params)
+        self.create_build_configuration(build_info, panel_builds, environment)
 
         
         # Build only this project
-        self.create_build_configuration({
-          "name": project_name,
-          "directory": project_directory, 
-          "file_name": project_file_name,
-          "additional_parameters": [ "/property:BuildProjectReferences=false" ]
-          }, panel_builds, environment)
+        build_info = BuildInfo(project_name, 
+                               project_directory, 
+                               project_file_name, 
+                               [ "/property:BuildProjectReferences=false" ])
+        self.create_build_configuration(build_info, panel_builds, environment)
 
     # Add global projects
     for build in self.builds:
-      self.create_build_configuration(build, panel_builds, environment)
+      build_info = BuildInfo(build.get("name"), 
+                             build.get("file_name"), 
+                             build.get("directory"))
+      self.create_build_configuration(build_info, panel_builds, environment)
 
     self.window.show_quick_panel(panel_builds, self.start_building)
 
