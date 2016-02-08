@@ -1,6 +1,6 @@
 {
 	"command":"c:/Windows/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe",
 	"platforms": [ "Win32", "x64" ],
-	"configurations": [ "Release", "Debug" ],
+	"configurations": ["Release", "Debug"],
 	"file_regex": "^\\s*(.+)\\(([0-9]+)\\)\\s*:\\s*(.*)"
 }
