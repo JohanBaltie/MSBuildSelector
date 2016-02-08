@@ -1,4 +1,4 @@
-MSBuild Selector is a build system for msbuild user allowing one to select between:
+MSBuild Selector is a build system for msbuild user allowing to select between:
 * Building the whole solution
 * Building one of the project that contain the file currently edited
 * Building the file currently edited
@@ -9,7 +9,7 @@ To activate it, you have to select the MSBuildSelector build system, and press t
 
 	"msbuild_selector":
 	{
-		# The list of "root projects" a.k.a solutions in the VS world
+		# The optional list of "root projects" a.k.a solutions in the VS world
 		"projects": [
 			{
 				"name": "Project name",
@@ -30,6 +30,8 @@ To activate it, you have to select the MSBuildSelector build system, and press t
 		},	
 	}
 
+*patterns* is mandatory and should contains only path relatives to the project root
+
 Additionally you can override the plugin configuration that contains:
 
 * "command": the msbuild path
@@ -37,3 +39,6 @@ Additionally you can override the plugin configuration that contains:
 * "configurations": the list of available configuration
 	"file_regex": the error line match (see build system documentation)
 
+It also provides two commands:
+* msbuild_selector_project: allows to launch the build on a project or a solution find with the patterns. It will open the quick panel to allow selection of what has to be build.
+* msbuild_selector_file: try to find the projects where the file exists and open a quick panel to allow selection of what to build. It is the command used by the build system.

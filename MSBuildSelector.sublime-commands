@@ -1,0 +1,10 @@
+[
+  {
+    "caption": "MSBuildSelector: Build project",
+    "command": "msbuild_selector_project"
+  },
+    {
+    "caption": "MSBuildSelector: Build file",
+    "command": "msbuild_selector_file"
+  },
+]
