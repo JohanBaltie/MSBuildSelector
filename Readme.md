@@ -30,15 +30,15 @@ To activate it, you have to select the MSBuildSelector build system, and press t
 		},	
 	}
 
-*patterns* is mandatory and should contains only path relatives to the project root
+*patterns* is mandatory and should contains only path relatives to the project root.
 
 Additionally you can override the plugin configuration that contains:
 
-* "command": the msbuild path
-* "platforms": the list of platform to build for
-* "configurations": the list of available configuration
-	"file_regex": the error line match (see build system documentation)
+* *"command"*: the msbuild path, default is **"c:/Windows/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe"**
+* *"platforms"*: the list of platform to build for
+* *"configurations"*: the list of available configuration
+* *"file_regex"*: the error line match (see build system documentation)
 
 It also provides two commands:
-* msbuild_selector_project: allows to launch the build on a project or a solution find with the patterns. It will open the quick panel to allow selection of what has to be build.
-* msbuild_selector_file: try to find the projects where the file exists and open a quick panel to allow selection of what to build. It is the command used by the build system.
+* *"msbuild_selector_project"*: allows to launch the build on a project or a solution find with the patterns. It will open the quick panel to allow selection of what has to be build.
+* *"msbuild_selector_file"*: try to find the projects where the file exists and open a quick panel to allow selection of what to build. It is the command used by the build system.
