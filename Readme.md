@@ -1,6 +1,10 @@
 # MSBuild Selector
 Build your *Visual Studio* solutions using *MSBuild*.
 
+## Current build status
+
+[![Build Status](https://travis-ci.org/jbaltie/MSBuildSelector.svg?branch=master)](https://travis-ci.org/jbaltie/MSBuildSelector)
+
 ## What it provides
 
 **MSBuild Selector** is a build system for *MSBuild* users allowing them to:
