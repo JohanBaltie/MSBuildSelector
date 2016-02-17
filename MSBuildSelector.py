@@ -1,5 +1,5 @@
-import sublime
-import sublime_plugin
+from sublime import error_message, load_settings
+from sublime_plugin import WindowCommand
 import os.path
 import os
 import re
@@ -19,10 +19,11 @@ class BuildInfo:
         self.directory = directory
         self.params = params
 
-class MsbuildSelector(sublime_plugin.WindowCommand):
+
+class MsbuildSelector(WindowCommand):
     """
-    Parent class for the selectors tha twill old the common thing selectors will
-    need to manipulate those build infos
+    Parent class for the selectors that will old the common thing selectors
+    will need to manipulate those build infos
     """
     msbuild_parameter = \
         "/p:Platform={Platform};Configuration={Configuration}"
@@ -39,7 +40,7 @@ class MsbuildSelector(sublime_plugin.WindowCommand):
         self.directory = os.path.dirname(project_file_name)
 
         # retrieve the settings
-        settings = sublime.load_settings("MSBuildSelector.sublime-settings")
+        settings = load_settings("MSBuildSelector.sublime-settings")
         self.msbuild_cmd = settings.get("command")
         self.platforms = settings.get("platforms")
         self.configurations = settings.get("configurations")
@@ -107,7 +108,6 @@ class MsbuildSelector(sublime_plugin.WindowCommand):
 
             yield (full_name, build_system)
 
-
     def add_build_configurations(self,
                                  build,
                                  panel,
@@ -116,8 +116,7 @@ class MsbuildSelector(sublime_plugin.WindowCommand):
         Add the various build configurations names to the panel and append them
         to the list of build systems
         """
-        for full_name, build_system \
-            in self.create_build_configurations(build):
+        for full_name, build_system in self.create_build_configurations(build):
             build_systems.append(build_system)
             panel.append(full_name)
 
@@ -150,10 +149,12 @@ class MsbuildSelector(sublime_plugin.WindowCommand):
         output_panel.settings().set("result_base_dir", cmd["working_dir"])
         self.window.run_command("exec", cmd)
 
+
 class MsbuildSelectorProjectCommand(MsbuildSelector):
     """
     This command is used to build a given project in the list of available
-    projects. Upon call it will open a panel listing all the projects with the platform/configurations pairs.
+    projects. Upon call it will open a panel listing all the projects with the
+    platform/configurations pairs.
     """
 
     def run(self):
@@ -169,7 +170,6 @@ class MsbuildSelectorProjectCommand(MsbuildSelector):
 
         # Now create the various build available
         panel_builds = []
-        projects = []
         build_systems = []
 
         # Is there a file ?
@@ -194,9 +194,9 @@ class MsbuildSelectorProjectCommand(MsbuildSelector):
 
         self.add_solutions_to_build(panel_builds, build_systems)
         self.window.show_quick_panel(panel_builds,
-                                     lambda index: \
-                                         self.start_building(build_systems,
-                                                             index))
+                                     lambda index:
+                                     self.start_building(build_systems,
+                                                         index))
 
 
 class MsbuildSelectorFileCommand(MsbuildSelector):
@@ -233,7 +233,6 @@ class MsbuildSelectorFileCommand(MsbuildSelector):
                     yield {"project": project_path, "file_path": path}
                     break
 
-
     def run(self):
         """
         Command run call by the build system
@@ -247,7 +246,6 @@ class MsbuildSelectorFileCommand(MsbuildSelector):
 
         # Now create the various build available
         panel_builds = []
-        projects = []
         build_systems = []
 
         # Is there a file ?
@@ -292,6 +290,6 @@ class MsbuildSelectorFileCommand(MsbuildSelector):
 
         self.add_solutions_to_build(panel_builds, build_systems)
         self.window.show_quick_panel(panel_builds,
-                                     lambda index: \
-                                         self.start_building(build_systems,
-                                                             index))
+                                     lambda index:
+                                     self.start_building(build_systems,
+                                                         index))
