@@ -2,9 +2,7 @@ sudo: false
 language: python
 python:
   - 3.4
-install:
-  - pip install flake8
-script:
-  - py -3.4 -m flake8 .
+install: "pip install flake8"
+script: "flake8 ."
 notifications:
     email: true
