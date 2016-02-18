@@ -1,10 +1,10 @@
 import os
 
-from . import BuildInfo as BuildInfo
-from . import MSBuildSelector as MSBuildSelector
+from .BuildInfo import BuildInfo
+from .MSBuildSelector import MsbuildSelector
 
 
-class MsbuildSelectorProjectCommand(MSBuildSelector.MsbuildSelector):
+class MsbuildSelectorProjectCommand(MsbuildSelector):
     """
     This command is used to build a given project in the list of available
     projects. Upon call it will open a panel listing all the projects with the

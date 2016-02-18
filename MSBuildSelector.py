@@ -2,7 +2,7 @@ import glob
 from itertools import product
 import os
 
-from . import BuildInfo as BuildInfo
+from .BuildInfo import BuildInfo
 
 from sublime import error_message, load_settings
 from sublime_plugin import WindowCommand
@@ -115,9 +115,9 @@ class MsbuildSelector(WindowCommand):
         """
 
         for build in self.builds:
-            build_info = BuildInfo.BuildInfo(build.get("name"),
-                                             build.get("file_name"),
-                                             build.get("directory"))
+            build_info = BuildInfo(build.get("name"),
+                                   build.get("file_name"),
+                                   build.get("directory"))
             self.add_build_configurations(build_info,
                                           panel_builds,
                                           build_systems)
