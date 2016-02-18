@@ -1,11 +1,11 @@
 import os
 import re
 
-from . import BuildInfo
-from . import MSBuildSelectorA
+from . import BuildInfo as BuildInfo
+from . import MSBuildSelector as MSBuildSelector
 
 
-class MsbuildSelectorFileCommand(MSBuildSelectorA.MsbuildSelector):
+class MsbuildSelectorFileCommand(MSBuildSelector.MsbuildSelector):
     """
     This command is called by the build system MSBuildSelector
     It will create a quick panel containing all the possible builds :

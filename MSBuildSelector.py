@@ -2,7 +2,7 @@ import glob
 from itertools import product
 import os
 
-from . import BuildInfo
+from . import BuildInfo as BuildInfo
 
 from sublime import error_message, load_settings
 from sublime_plugin import WindowCommand
