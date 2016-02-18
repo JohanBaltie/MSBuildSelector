@@ -1,8 +1,8 @@
 import os
 import re
 
-from .BuildInfo import BuildInfo
-from .MSBuildSelector import MsbuildSelector
+from .build_info import BuildInfo
+from .msbuild_selector import MsbuildSelector
 
 
 class MsbuildSelectorFileCommand(MsbuildSelector):
