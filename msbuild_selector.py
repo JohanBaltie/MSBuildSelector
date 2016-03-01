@@ -17,7 +17,7 @@ class MsbuildSelector(WindowCommand):
         "/p:Platform={Platform};Configuration={Configuration}"
     file_build_label = "{Name}: {Platform}/{Configuration}"
 
-    def initialize(self):
+    def read_configuration(self):
         """
         Retrieve all the information mandatory or optional that will be used to
         create the quick panel and launch the build.
@@ -29,31 +29,58 @@ class MsbuildSelector(WindowCommand):
 
         # retrieve the settings
         settings = load_settings("MSBuildSelector.sublime-settings")
-        self.msbuild_cmd = settings.get("command")
-        self.platforms = settings.get("platforms")
-        self.configurations = settings.get("configurations")
         self.file_regex = settings.get("file_regex")
 
         # Retrieve the project info
-        selector = self.window.project_data().get("msbuild_selector")
+        project_selector = self.window.project_data().get("msbuild_selector")
 
         # Is there something specified ?
-        if (selector is None):
-            error_message("Configure a \"msbuild_selector\" in your project.")
+        if (project_selector is None):
+            error_message("MSBuildSelector: A \"msbuild_selector\" section "
+                          "must be configured in the project.")
             return False
 
         # override command if provided
-        overrided_command = selector.get("command")
-        if overrided_command is not None:
-            self.msbuild_cmd = overrided_command
+        self.msbuild_cmd = project_selector.get("command",
+                                                settings.get("command"))
+        if not os.path.exists(self.msbuild_cmd):
+            error_string = ("MSBuildSelector: "
+                            "\"{0}\" does not exists").format(self.msbuild_cmd)
+            error_message(error_string)
+            return False
+        self.msbuild_cmd = os.path.normpath(self.msbuild_cmd)
+        print(self.msbuild_cmd)
 
         # Retrieve all the infos
-        self.builds = selector.get("projects", [])
-        self.patterns = selector.get("patterns")
-        self.environment = selector.get("environment")
+        self.builds = project_selector.get("projects", [])
+        self.environment = project_selector.get("environment")
+
+        # We should at least have one platform/configuration,
+        self.platforms = project_selector.get("platforms",
+                                              settings.get("platforms"))
+        if ((self.platforms is None) or
+                (0 == len(self.platforms))):
+            error_message("MSBuildSelector: No platform configured.")
+            return False
+
+        self.configurations = \
+            project_selector.get("configurations",
+                                 settings.get("configurations"))
+        if ((self.configurations is None) or
+                (0 == len(self.configurations))):
+            error_message("MSBuildSelector: No configuration configured.")
+            return False
 
         # Patterns are mandatory
-        return (self.patterns is not None)
+        self.patterns = project_selector.get("patterns")
+        if ((self.patterns is None) or
+                (0 == len(self.patterns))):
+            error_message("MSBuildSelector: A \"patterns\" section must be "
+                          "defined in the project.")
+            return False
+
+        # Everything ok
+        return True
 
     def list_all_projects(self):
         """
@@ -91,7 +118,7 @@ class MsbuildSelector(WindowCommand):
             build_system = {
                 "cmd": cmd,
                 "working_dir": build.directory}
-            if self.environment is None:
+            if self.environment is not None:
                 build_system["env"] = self.environment
 
             yield (full_name, build_system)
@@ -126,13 +153,17 @@ class MsbuildSelector(WindowCommand):
         """
         Function called by the quick panels to start a build
         """
+
+        # Canceled ?
         if (index == -1):
             return
 
+        # Nope, there is something !
         cmd = build_systems[index]
         cmd["file_regex"] = self.file_regex
         self.window.run_command("show_panel",
                                 {"panel": "output.exec"})
         output_panel = self.window.get_output_panel("exec")
         output_panel.settings().set("result_base_dir", cmd["working_dir"])
+        print("Cmd: \"{Cmd}\"".format(Cmd=cmd))
         self.window.run_command("exec", cmd)

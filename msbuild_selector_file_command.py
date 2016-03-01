@@ -43,7 +43,9 @@ class MsbuildSelectorFileCommand(MsbuildSelector):
         """
         Command run call by the build system
         """
-        if (not self.initialize()):
+
+        # Better to read configuration on run to allow modifications
+        if (not self.read_configuration()):
             return
 
         # The file name, which is specific to this selector

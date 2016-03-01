@@ -1,8 +1,6 @@
 # MSBuild Selector
 Build your *Visual Studio* solutions using *MSBuild*.
 
-## Current build status
-
 [![Build Status](https://travis-ci.org/jbaltie/MSBuildSelector.svg?branch=master)](https://travis-ci.org/jbaltie/MSBuildSelector)
 
 ## What it provides
@@ -13,6 +11,8 @@ Build your *Visual Studio* solutions using *MSBuild*.
 * Build the file currently edited
 
 Each build option is available in all the *Platform/Configuration* pairs.
+
+![Usage example](usage_example.gif)
 
 ## Startup configuration
 
@@ -39,7 +39,9 @@ Here a more complete example of configuration:
 	{
 		# Path to MSBUILD
 		"command": "path/to/msbuild.exe",
-		# An optional list of "root projects" a.k.a solutions in the VS world
+
+		# An optional list of "root projects" a.k.a solutions in the VS world that
+		# will be added to the panel to build
 		"projects": [
 			{
 				"name": "Project name",
@@ -48,23 +50,36 @@ Here a more complete example of configuration:
 			}
 		],
 
-		# A mandatory list of glob patterns to find the sub-projects (named simply projects
-		# in VS)
+		# List of platforms you want to be able to build on.
+		# Default is Win32/x64
+		"platforms":
+		[
+			"x64"
+		],
+
+		# List of configuration you want to be able to build on.
+		# Default is Release/Debug
+		"configurations":
+		[
+			"Release"
+		],
+
+		# A mandatory list of glob patterns to find the sub-projects
+		# (named simply projects in VS)
 		"patterns":	[
 			"path/to/projects/*.vcxproj",
 			"path/to/projects/*.csxproj",
 		],
 
-		# Optional environment variables
+		# Optional environment variables that will be passed to MSBuild process
 		"environment": {
 			"MY_VAR": "my_value"
 		},
-	}
 
-* *"command"*: the msbuild path, default is **"c:/Windows/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe"**
-* *"platforms"*: the list of platform to build for
-* *"configurations"*: the list of available configuration
-* *"file_regex"*: the error line match (see build system documentation)
+		# Regexp to match error (see build system documentation)
+		# Default is "^\\s*(.+)\\(([0-9]+)\\)\\s*:\\s*(.*)"
+		"file_regex": "^\\s*(.+)\\(([0-9]+)\\)\\s*:\\s*(.*)"
+	}
 
 ## Additional commands
 
