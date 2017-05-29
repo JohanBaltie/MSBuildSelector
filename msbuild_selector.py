@@ -166,4 +166,4 @@ class MsbuildSelector(WindowCommand):
         output_panel = self.window.get_output_panel("exec")
         output_panel.settings().set("result_base_dir", cmd["working_dir"])
         print("Cmd: \"{Cmd}\"".format(Cmd=cmd))
-        self.window.run_command("exec", cmd)
+        print("Result: {0}", self.window.run_command("exec", cmd))

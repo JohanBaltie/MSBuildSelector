@@ -5,6 +5,20 @@ from .build_info import BuildInfo
 from .msbuild_selector import MsbuildSelector
 
 
+variable_in_string = re.compile("\$\(.*\).*")
+
+
+def choose_path(path_from_os, path_from_project):
+    """
+    Helper function to choose between path from the project file and OS
+    path.
+
+    Default is to use project path, unless there is a variable detected inside.
+    """
+    return path_from_os \
+        if (variable_in_string.match(path_from_project)) else path_from_project
+
+
 class MsbuildSelectorFileCommand(MsbuildSelector):
     """
     This command is called by the build system MSBuildSelector
@@ -36,7 +50,8 @@ class MsbuildSelectorFileCommand(MsbuildSelector):
                     # Create the project/file path pair
                     path = match.group(1)
                     project_path = os.path.abspath(project)
-                    yield {"project": project_path, "file_path": path}
+                    yield {"project": project_path,
+                           "file_path": choose_path(name, path)}
                     break
 
     def run(self):
@@ -63,21 +78,17 @@ class MsbuildSelectorFileCommand(MsbuildSelector):
         # a way to build the file alone and the project alone
         for project in self.find_projects_for_file(file_name):
             project_path = project.get("project")
-            file_path_in_project = project.get("file_path")
+            file_path = project.get("file_path")
             project_directory = os.path.dirname(project_path)
             project_file_name = os.path.basename(project_path)
             project_name = os.path.splitext(project_file_name)[0]
             file_name_without_path = os.path.basename(file_name)
 
             # Build only this file
-            # WARNING: the file path in selected path should be exactly the
-            # same as the one in the msbuildfile, so it does not work with
-            # variables.
             name_for_file = file_name_without_path +\
                 " (" + project_name + ")"
-            params = [
-                "/target:ClCompile",
-                "/property:SelectedFiles=" + file_path_in_project]
+            params = ["/target:ClCompile",
+                      "/property:SelectedFiles={0}".format(file_path)]
             build_info = BuildInfo(name_for_file,
                                    project_file_name,
                                    project_directory,
